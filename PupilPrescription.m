@@ -1,5 +1,3 @@
-classdef PupilPerscription < handle
-    %PUPILPERSCRIPTION aberration description of a pupil
     
     properties
         notation
@@ -11,7 +9,6 @@ classdef PupilPerscription < handle
     end
     
     methods
-        function obj = PupilPerscription(notation, seidelTerms, seidelCoefficients, zernikeTerms, zernikeCoefficients, centralObscuration)
             % the flying V of default parameters
             if nargin < 6
                 if nargin < 5
