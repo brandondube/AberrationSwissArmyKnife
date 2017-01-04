@@ -29,7 +29,7 @@ classdef AberrationSwissArmyKnife < handle
     methods
         % constructor
         function obj = AberrationSwissArmyKnife(lambda, efl, fno, xpSamples, xpPadding, pupilSpec)
-			// flying v of default parameters
+			% flying v of default parameters
 			if nargin < 6
 				if nargin < 5
 					if nargin < 4
