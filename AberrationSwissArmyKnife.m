@@ -29,6 +29,26 @@ classdef AberrationSwissArmyKnife < handle
     methods
         % constructor
         function obj = AberrationSwissArmyKnife(lambda, efl, fno, xpSamples, xpPadding, pupilSpec)
+			// flying v of default parameters
+			if nargin < 6
+				if nargin < 5
+					if nargin < 4
+						if nargin < 3
+							if nargin < 2
+								if nargin < 1
+									lambda = 0.5;
+								end
+								efl = 1;
+							end
+							fno = 1;
+						end
+						xpSamples = 1024;
+					end
+					xpPadding = 8;
+				end
+				pupilSpec = PupilPrescription();
+			end
+			
             obj.lambda = lambda;
             obj.efl = efl;
             obj.fno = fno;
