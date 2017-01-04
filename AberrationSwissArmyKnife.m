@@ -81,6 +81,9 @@ classdef AberrationSwissArmyKnife < handle
 
             % delete obj.w outside the pupil
             obj.w(xpRho > 1) = 0;
+			
+			% obscure as needed
+            obj.w(xpRho < obj.pupilPrescription.centralObscuration) = 0;
         end
         function [] = w2psf(obj)
             obj.psf = ...
