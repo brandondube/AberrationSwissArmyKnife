@@ -45,10 +45,9 @@ classdef AberrationSwissArmyKnife < handle
                         xpSamples = 1024;
                     end
                     xpPadding = 8;
-            	end
-            	pupilSpec = PupilPrescription();
+                end
+                pupilSpec = PupilPrescription();
             end
-
             obj.lambda = lambda;
             obj.efl = efl;
             obj.fno = fno;
@@ -145,5 +144,4 @@ classdef AberrationSwissArmyKnife < handle
             obj.mtfDomain = obj.mtfDomain(1:l);
         end
     end
-    
 end
