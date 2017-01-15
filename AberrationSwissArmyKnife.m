@@ -71,11 +71,12 @@ classdef AberrationSwissArmyKnife < handle
 
             [ xpX, xpY ] = meshgrid(obj.xp);
                    xpPhi = atan2(xpY, xpX);
-
             rPupil = sqrt(xpX .^ 2 + xpY .^ 2);
             xpRho  = rPupil / xpMax;
+            
             obj.w = ones(obj.xpSamples, obj.xpSamples);
-
+            pupilPhase = zeros(obj.xpSamples, obj.xpSamples);
+            
             if (strcmpi(obj.pupil.notation, 'w')) % w polynomial / Seidel
                 Wexp = cell(length(obj.pupil.seidelTerms), 1);
                 for i = 1 : length(Wexp)
@@ -84,7 +85,7 @@ classdef AberrationSwissArmyKnife < handle
                         continue % short circuit for performance
                     end
                     currContrib = Wexp{i}(obj.pupil.seidelCoefficients(i), xpRho, xpPhi);
-                    obj.w = obj.w + exp(1i .* 2 .* pi ./ obj.lambda .* currContrib);
+                    pupilPhase = pupilPhase + currContrib;
                 end
             else %notation == 'Z' % Zernike
                 Wexp = cell(length(obj.pupil.zernikeTerms), 1);
@@ -94,10 +95,11 @@ classdef AberrationSwissArmyKnife < handle
                         continue % short circuit zero value terms for speed
                     end
                     currContrib = Wexp{i}(obj.pupil.zernikeCoefficients(i), xpRho, xpPhi);
-                    obj.w = obj.w + exp(1i .* ( 2 .* pi ./ obj.lambda) .* currContrib);
+                    pupilPhase = pupilPhase +  currContrib;
                 end
             end
-
+            
+            obj.w = exp(1i .* (2 .* pi ./ obj.lambda) .* pupilPhase);
             % delete obj.w outside the pupil
             obj.w(xpRho > 1) = 0;
 
@@ -105,14 +107,7 @@ classdef AberrationSwissArmyKnife < handle
             obj.w(xpRho < obj.pupil.centralObscuration) = 0;
         end
         function [] = w2psf(obj)
-            obj.psf = ...
-                abs(...
-                    ifftshift(...
-                        fft2(...
-                            fftshift(obj.w)...
-                        )...
-                    )...
-                ) .^ 2;
+            obj.psf = fftshift(abs(fft2(obj.w)) .^ 2);
             obj.psf = obj.psf / max(max(obj.psf));
             
             xpStep = (obj.xp(2) - obj.xp(1));
