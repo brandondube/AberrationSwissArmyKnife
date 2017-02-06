@@ -4,7 +4,7 @@ classdef MTFPlotter
             %plot 3D rendition of MTF
 
             if nargin < 2
-                plotType = 'mesh';
+                plotType = 'surf';
             end
             checkMTF(AberrationSwissArmyKnife);
 
@@ -33,7 +33,7 @@ classdef MTFPlotter
             plot(AberrationSwissArmyKnife.mtfAxis, AberrationSwissArmyKnife.mtfTan)
             xlabel('1/\lambdaN');
             ylabel('MTF');
-            xlim([0 1]);
+            ylim([0 1]);
             grid on
         end
         
@@ -44,7 +44,7 @@ classdef MTFPlotter
             plot(AberrationSwissArmyKnife.mtfAxis, AberrationSwissArmyKnife.mtfSan)
             xlabel('1/\lambdaN');
             ylabel('MTF');
-            xlim([0 1]);
+            ylim([0 1]);
             grid on
         end
     end
