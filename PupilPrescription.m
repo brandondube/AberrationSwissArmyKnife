@@ -11,32 +11,22 @@ classdef PupilPrescription < handle
     end
     
     methods
-        function obj = PupilPrescription(notation, seidelTerms, seidelCoefficients, zernikeTerms, zernikeCoefficients, centralObscuration)
-            % the flying V of default parameters
-            if nargin < 6
-                if nargin < 5
-                    if nargin < 4
-                        if nargin < 3
-                            if nargin < 2
-                                if nargin < 1
-                                    notation = 'Z';
-                                end
-                                seidelTerms = ['',''];
-                            end
-                            seidelCoefficients = [0,0];
-                        end
-                        zernikeTerms = [1,2,8];
-                    end
-                    zernikeCoefficients = [0,0,1];
-                end
-                centralObscuration = 0;
+        function obj = PupilPrescription(varargin)
+            % parse inputs
+            p = inputParser;
+            p.KeepUnmatched = false;
+            p.addParameter('notation',            'Z',     @ischar);
+            p.addParameter('seidelTerms',         [040],   @isnumeric);
+            p.addParameter('seidelCoefficients',  [0.125], @isnumeric);
+            p.addParameter('zernikeTerms',        [8],     @isnumeric);
+            p.addParameter('zernikeCoefficients', [0.125], @isnumeric);
+            p.addParameter('centralObscuration',  0,       @isnumeric);
+            p.parse(varargin{:});
+
+            fields = fieldnames(p.Results);
+            for i = 1 : numel(fields)
+                obj.(fields{i}) = p.Results.(fields{i});
             end
-            obj.notation = notation;
-            obj.seidelTerms = seidelTerms;
-            obj.seidelCoefficients = seidelCoefficients;
-            obj.zernikeTerms = zernikeTerms;
-            obj.zernikeCoefficients = zernikeCoefficients;
-            obj.centralObscuration = centralObscuration;
         end
         function [] = setSeidel(terms, coefficients)
             obj.seidelTerms = terms;
