@@ -1,30 +1,28 @@
 function [ W ] = wgenerator(aberration)
 
-ab = lower(aberration);
-
-switch ab
+switch aberration
     % defocus
-    case {'d', 'def', 'defocus'}
+    case 020
         W = @(a, rho, phi) a .* ...
             ( rho .* rho ...
             );
     % tilt
-    case {'t', 'tlt', 'tilt'}
+    case 111
         W = @(a, rho, phi) a .* ...
             ( rho .* cos(phi) ...
             );
     % spherical
-    case {'s', 'sph', 'sa3', 'spherical'}
+    case 040
         W = @(a, rho, phi) a .* ...
             ( rho .^ 4 ...
             );
     % coma
-    case {'c', 'cma', 'coma'}
+    case 131
         W = @(a, rho, phi) a .* ...
             ( rho .^ 3 .* cos(phi) ...
             );
     % astigmatism
-    case {'a', 'ast', 'astigmatism'}
+    case 222
         W = @(a, rho, phi) a .* ...
             ( rho .* rho .* cos(phi) .^ 2 ...
             );

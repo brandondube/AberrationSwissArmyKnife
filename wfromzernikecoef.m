@@ -1,7 +1,7 @@
 function [ W ] = wfromzernikecoef(zernikeNumber)
 % returns an expression for a zernike in terms of rho and phi.
 
-% first 36 zernike polynomials, zero basis.
+% first 36 fringe zernike polynomials, zero basis.
 switch zernikeNumber
     case 0 % piston
         W = @(a, rho, phi) a .* ...
