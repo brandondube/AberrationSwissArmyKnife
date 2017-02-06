@@ -91,7 +91,7 @@ classdef AberrationSwissArmyKnife < handle
                 aberrationFn = @wfromzernikecoef;
             else
                 terms = obj.pupil.seidelTerms;
-                coefficients = obj.pupil.seidelCofficients;
+                coefficients = obj.pupil.seidelCoefficients;
                 aberrationFn = @wgenerator;
             end
 
@@ -129,17 +129,17 @@ classdef AberrationSwissArmyKnife < handle
         function [] = psf2mtf(obj)
             obj.mtf = abs(fft2(obj.psf));
 
-            % l = obj.xpSamples / 2;
-            % obj.mtf = obj.mtf(1 : l, 1 : l);
-            % obj.mtf = obj.mtf ./ obj.mtf(1, 1);
-            % obj.mtfTan = obj.mtf(:, 1);
-            % obj.mtfSag = obj.mtf(1, :);
+            l = obj.samples / 2;
+            obj.mtf = obj.mtf(1 : l, 1 : l);
+            obj.mtf = obj.mtf ./ obj.mtf(1, 1);
+            obj.mtfTan = obj.mtf(:, 1);
+            obj.mtfSag = obj.mtf(1, :);
 
             % sample = obj.psfAxis.X(2) - obj.psfAxis.X(1);
-            obj.mtfAxis = ((1 : obj.samples) - obj.origin) / obj.padding; 
+            obj.mtfAxis = ((1 : obj.samples) - obj.origin) / obj.padding;
+            obj.mtfAxis = obj.mtfAxis(1:l);
             % obj.mtfAxis = linspace(0, 1, length(obj.psfAxis.X) / 2) ./ sample;
 
-            l = length(obj.mtfAxis) / 2;
             obj.mtfTan = obj.mtf(:, 1);
             obj.mtfSag = obj.mtf(1, :);
             % obj.mtfAxis = obj.mtfAxis(1:l);
