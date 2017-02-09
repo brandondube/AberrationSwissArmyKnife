@@ -20,10 +20,13 @@ classdef PSFPlotter
                     surf(U,V,AberrationSwissArmyKnife.psf, 'EdgeColor', 'none');
                     shading interp;
             end
-            xlim([-4 4]);
-            ylim([-4 4]);
+            xlim([-AberrationSwissArmyKnife.padding, AberrationSwissArmyKnife.padding]);
+            ylim([-AberrationSwissArmyKnife.padding, AberrationSwissArmyKnife.padding]);
+            view(0, 90);
             xlabel('\lambdaN'); ylabel('\lambdaN');
             zlabel('PSF Rel. Intensity');
+            c = colorbar();
+            c.Label.String = 'Normalized Intensity';
         end
 
         function [] = plotSliceX(AberrationSwissArmyKnife)

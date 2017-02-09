@@ -50,7 +50,8 @@ classdef WPlotter
             view(0, 90);
             xlabel('Normalized Pupil X');
             ylabel('Normalized Pupil Y');
-            zlabel('Pupil Amplitude');
+            c = colorbar();
+            c.Label.String = 'Pupil Phase (modulo 2\pi)';
         end
     end
 end
