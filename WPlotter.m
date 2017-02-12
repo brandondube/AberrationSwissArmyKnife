@@ -32,13 +32,12 @@ classdef WPlotter
             
             axis = AberrationSwissArmyKnife.wAxis;
             [X, Y] = meshgrid(axis, axis');
-            ext = length(axis);
-            origin = AberrationSwissArmyKnife.origin;
-            shift = ext / 2 / AberrationSwissArmyKnife.padding;
-            
-            plotX = X(origin - shift : origin + shift, origin - shift : origin + shift);
-            plotY = Y(origin - shift : origin + shift, origin - shift : origin + shift);
-            plotW = AberrationSwissArmyKnife.w(origin - shift : origin + shift, origin - shift : origin + shift);
+            paddingPixels = (AberrationSwissArmyKnife.padding - 1) * length(axis);
+            shift = floor(paddingPixels / 2);
+            ext = size(X, 1);
+            plotX = X(shift + 1: ext - shift, shift + 1 : ext - shift);
+            plotY = Y(shift + 1: ext - shift, shift + 1 : ext - shift);
+            plotW = AberrationSwissArmyKnife.w(shift + 1: ext - shift, shift + 1: ext - shift);
             switch lower(plotType)
                 case 'mesh'
                     mesh(plotX, plotY, plotW);
