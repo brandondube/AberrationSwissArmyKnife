@@ -20,9 +20,8 @@ classdef PSFPlotter
                     surf(U,V,AberrationSwissArmyKnife.psf, 'EdgeColor', 'none');
                     shading interp;
             end
-            p = AberrationSwissArmyKnife.padding / 4;
-            xlim([-5, 5]);
-            ylim([-5, 5]);
+            xlim([-10, 10]);
+            ylim([-10, 10]);
             view(0, 90);
             xlabel('\mum');
             ylabel('\mum');
@@ -40,7 +39,6 @@ classdef PSFPlotter
             plot(AberrationSwissArmyKnife.psfAxis, AberrationSwissArmyKnife.psfSliceX,'.-');
             xlabel('\mum');
             ylabel('Relative Intensity');
-            p = AberrationSwissArmyKnife.padding;
             xlim([-2.5 2.5]);
             grid on
         end
