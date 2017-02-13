@@ -1,6 +1,6 @@
 classdef PSFPlotter
     methods (Static)
-        function [] = plot3D(AberrationSwissArmyKnife, plotType)
+        function [fig, ax] = plot3D(AberrationSwissArmyKnife, plotType)
             %plot 3D rendition of PSF
             
             if nargin < 2
@@ -8,7 +8,7 @@ classdef PSFPlotter
             end
             checkPSF(AberrationSwissArmyKnife);
 
-            figure;
+            fig = figure;
             axis = AberrationSwissArmyKnife.psfAxis;
             [U,V] = meshgrid(axis, axis');
 
@@ -20,13 +20,16 @@ classdef PSFPlotter
                     surf(U,V,AberrationSwissArmyKnife.psf, 'EdgeColor', 'none');
                     shading interp;
             end
-            xlim([-AberrationSwissArmyKnife.padding, AberrationSwissArmyKnife.padding]);
-            ylim([-AberrationSwissArmyKnife.padding, AberrationSwissArmyKnife.padding]);
+            p = AberrationSwissArmyKnife.padding / 4;
+            xlim([-5, 5]);
+            ylim([-5, 5]);
             view(0, 90);
-            xlabel('\lambdaN'); ylabel('\lambdaN');
+            xlabel('\mum');
+            ylabel('\mum');
             zlabel('PSF Rel. Intensity');
             c = colorbar();
             c.Label.String = 'Normalized Intensity';
+            ax = gca;
         end
 
         function [] = plotSliceX(AberrationSwissArmyKnife)
@@ -34,10 +37,11 @@ classdef PSFPlotter
 
             checkPSF(AberrationSwissArmyKnife);
 
-            plot(AberrationSwissArmyKnife.psfAxis, AberrationSwissArmyKnife.psfSlice,'.-');
-            xlabel('\lambdaN');
+            plot(AberrationSwissArmyKnife.psfAxis, AberrationSwissArmyKnife.psfSliceX,'.-');
+            xlabel('\mum');
             ylabel('Relative Intensity');
-            xlim([-4 4]);
+            p = AberrationSwissArmyKnife.padding;
+            xlim([-2.5 2.5]);
             grid on
         end
 
@@ -46,24 +50,27 @@ classdef PSFPlotter
 
             checkPSF(AberrationSwissArmyKnife);
 
-            plot(AberrationSwissArmyKnife.psfAxis, AberrationSwissArmyKnife.psfSlice, '.-');
-            xlabel('\lambdaN');
+            plot(AberrationSwissArmyKnife.psfAxis, AberrationSwissArmyKnife.psfSliceY, '.-');
+            xlabel('\mum');
             ylabel('Relative Intensity');
-            xlim([-4 4]);
+            p = AberrationSwissArmyKnife.padding;
+            xlim([-p p]);
             grid on
         end
 
-        function [] = plotSliceXY(AberrationSwissArmyKnife)
+        function [fig, ax] = plotSliceXY(AberrationSwissArmyKnife)
             %plots slice through both the X and Y axis of the pupil
 
-            figure;
+            fig = figure;
             hold on
             plot(AberrationSwissArmyKnife.psfAxis, AberrationSwissArmyKnife.psfSlice, '.-');
             plot(AberrationSwissArmyKnife.psfAxis, AberrationSwissArmyKnife.psfSlice, '.-');
-            xlabel('\lambdaN');
+            xlabel('\mum');
             ylabel('Relative Intensity');
-            xlim([-4 4]);
+            p = AberrationSwissArmyKnife.padding;
+            xlim([-p p]);
             grid on
+            ax = gca;
         end
     end
 end
