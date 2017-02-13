@@ -27,13 +27,9 @@ classdef AberrationSwissArmyKnife < handle
     % - MTFPlotter.m
     % - ComboPlotter.m
     %
-    % Example: (coefficients are in um, not in wavelengths)
-    % s = AberrationSwissArmyKnife();
-    % s.buildPupil();
-    % s.w2psf();
     
     properties
-        % variables
+        % inputs
         lambda
         efl
         fno
@@ -41,14 +37,14 @@ classdef AberrationSwissArmyKnife < handle
         padding
         samples
 
-        % results
+        % outputs
         origin    % origin of wavefront and image
         w         % 2D aberrated wavefront
         wSliceX   % 1D slice of pupil amplitude along X
         wSliceY   % 1D slice of pupil amplitude along Y
         wSample   % "pixel" size in the pupil plane
         wAxis     % w slice coordinates (in normalized radii)
-        psf       % 2D intensity PSF
+        psf       % 2D normalized intensity PSF
         psfSliceX % 1D slice of PSF through X
         psfSliceY % 1D slice of PSF through Y
         psfSample % "pixel" size in the PSF plane
@@ -66,7 +62,7 @@ classdef AberrationSwissArmyKnife < handle
             p.KeepUnmatched = false;
             p.addParameter('lambda',  0.5876,  @isnumeric);  % um
             p.addParameter('efl',     1,    @isnumeric);  % mm
-            p.addParameter('fno',     22,    @isnumeric);  % unitless
+            p.addParameter('fno',     2,    @isnumeric);  % unitless
             p.addParameter('pupil', PupilPrescription()); % aberrations are part of the pupil
             p.addParameter('padding', 8,    @isnumeric);  % necessary for good FFT result, xPupils
             p.addParameter('samples', 1024, @isnumeric);  % image width
@@ -85,7 +81,18 @@ classdef AberrationSwissArmyKnife < handle
 
             % build a a slice through the coordinates of the normalized
             % pupil
-            obj.wAxis = linspace(-obj.padding, obj.padding, obj.samples);
+            xpd = obj.efl / obj.fno * 1000; % *1000 converts mm to um
+            pupilPlaneWidth = obj.padding * xpd;
+            obj.wSample = pupilPlaneWidth / obj.samples;
+            
+            obj.wAxis = linspace(-obj.padding, obj.padding, obj.samples) ...
+                - (obj.padding / obj.samples); % unshift
+            % this leaves a positional error on the order of picometers
+            % (1e-12) for a pupil of some mm (1e-3) in size.
+            % an alternative would be:
+            % obj.wAxis = (-1:1/(obj.samples/2):1-1/obj.samples)*obj.padding
+            % which is a less readable syntax.  The billionths of a percent
+            % error are accepted in this case.
             
             % extend this slice to 2D
             [xpX, xpY] = meshgrid(obj.wAxis);
@@ -96,26 +103,26 @@ classdef AberrationSwissArmyKnife < handle
             obj.w = zeros(obj.samples);
 
             % pull the terms, coefficients, and function library for the notation
-            if strcmpi(obj.pupil.notation,'z')
+            if strcmpi(obj.pupil.notation, 'z')
                 aberrationFn = @wfromzernikecoef;
             else
                 aberrationFn = @wgenerator;
             end
 
             % compute the phase of each sample of the pupil
-            netPhase = 0;
+            netPhase = zeros(size(obj.w));
             for i = 1 : length(obj.pupil.terms)
                 if (obj.pupil.coefficients(i) == 0)
                     continue % short circuit 0 terms for better performance
                 end
-                Wexp = aberrationFn(terms(i));
+                Wexp = aberrationFn(obj.pupil.terms(i));
                 contrib = Wexp(obj.pupil.coefficients(i), xpRho, xpPhi);
                 netPhase = netPhase + contrib;
             end
 
             % compute the amplitude of the pupil from its phase.
             % we are interested in the amplitude (abs) not phase (atan2)
-            obj.w = obj.w + real(exp(1i .* 2 .* pi ./ obj.lambda .* netPhase));
+            obj.w = obj.w + abs((exp(1i .* 2 .* pi ./ obj.lambda) .* netPhase));
             
             % annihilate outside the lens' pupil.
             obj.w(xpRho > 1) = 0;
@@ -135,9 +142,6 @@ classdef AberrationSwissArmyKnife < handle
             obj.psfSliceX = obj.psf(obj.origin, :);
             obj.psfSliceY = obj.psf(:, obj.origin)';
             
-            xpd = obj.efl / obj.fno * 1000; % *1000 converts mm to um
-            pupilPlaneWidth = obj.padding * xpd;
-            obj.wSample = pupilPlaneWidth / obj.samples;
             obj.psfSample = (obj.lambda * (obj.efl * 1e3)) ...
                           / (obj.wSample * obj.samples);
             obj.psfAxis = (-obj.samples / 2 : obj.samples / 2 - 1) .* obj.psfSample;
@@ -154,7 +158,8 @@ classdef AberrationSwissArmyKnife < handle
             obj.mtfTan = obj.mtf(:, 1)';
             obj.mtfSag = obj.mtf(1, :);
             
-            obj.mtfAxis = obj.psfSample * (0 : obj.samples / 2 - 1) / obj.samples * 1e3 ; % factor of 1e3 converts um to mm
+            obj.mtfAxis = (0 : obj.samples - 1) * obj.padding * 2 ...
+                / obj.samples * 1e3 / (obj.lambda * obj.samples); % factor of 1e3 converts um to mm
             obj.mtfAxis = obj.mtfAxis(1 : l);
         end
     end
