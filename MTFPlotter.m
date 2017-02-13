@@ -1,6 +1,6 @@
 classdef MTFPlotter
     methods (Static)
-        function [] = plot3D(AberrationSwissArmyKnife, plotType)
+        function [fig, ax] = plot3D(AberrationSwissArmyKnife, plotType)
             %plot 3D rendition of MTF
 
             if nargin < 2
@@ -8,7 +8,7 @@ classdef MTFPlotter
             end
             checkMTF(AberrationSwissArmyKnife);
 
-            figure;
+            fig = figure;
             pt = lower(plotType);
             [Fx, Fy] = meshgrid(AberrationSwissArmyKnife.mtfAxis, AberrationSwissArmyKnife.mtfAxis');
             switch pt
@@ -21,9 +21,12 @@ classdef MTFPlotter
             view(49,16);
             xlim([0 1]);
             ylim([0 1]);
-            xlabel('1/\lambdaN');
-            ylabel('1/\lambdaN');
+            xlabel('lp/mm-x');
+            ylabel('lp/mm-y');
             zlabel('MTF');
+            c = colorbar();
+            c.Label.String = 'Normalized Intensity';
+            ax = gca;
         end
 
         function [] = plotTan(AberrationSwissArmyKnife)
@@ -31,7 +34,7 @@ classdef MTFPlotter
 
             checkMTF(AberrationSwissArmyKnife);
             plot(AberrationSwissArmyKnife.mtfAxis, AberrationSwissArmyKnife.mtfTan)
-            xlabel('1/\lambdaN');
+            xlabel('lp/mm');
             ylabel('MTF');
             ylim([0 1]);
             grid on
@@ -42,10 +45,36 @@ classdef MTFPlotter
 
             checkMTF(AberrationSwissArmyKnife);
             plot(AberrationSwissArmyKnife.mtfAxis, AberrationSwissArmyKnife.mtfSan)
-            xlabel('1/\lambdaN');
+            xlabel('lp/mm');
             ylabel('MTF');
             ylim([0 1]);
             grid on
+        end
+
+        function [fig, ax] = plotBoth(AberrationSwissArmyKnife, dashTan)
+            % plots both the tangential and sagittal MTF
+
+            a = AberrationSwissArmyKnife;
+            if nargin < 2
+                dashTan = false;
+            end
+            checkMTF(a);
+
+            fig = figure;
+            hold on;
+            if dashTan
+                plot(a.mtfAxis, a.mtfTan, 'LineStyle', '--');
+                plot(a.mtfAxis, a.mtfSag, 'LineStyle', '-');
+            else
+                plot(a.mtfAxis, a.mtfTan, 'LineStyle', '-');
+                plot(a.mtfAxis, a.mtfSag, 'LineStyle', '--');
+            end
+            hold off;
+            xlabel('lp/mm');
+            ylabel('MTF');
+            ylim([0 1]);
+            grid on
+            ax = gca;
         end
     end
 end
