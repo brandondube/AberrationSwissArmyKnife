@@ -48,9 +48,11 @@ classdef WPlotter
             checkW(AberrationSwissArmyKnife);
             
             fig = figure;
-            axis = AberrationSwissArmyKnife.wAxis;
-            [X, Y] = meshgrid(axis, axis');
-            paddingPixels = length(axis) / (AberrationSwissArmyKnife.padding - 1);
+            axis square;
+
+            wAxis = AberrationSwissArmyKnife.wAxis;
+            [X, Y] = meshgrid(wAxis, wAxis');
+            paddingPixels = length(wAxis) / (AberrationSwissArmyKnife.padding - 1);
             shift = ceil(paddingPixels / 2);
             ext = size(X, 1);
             plotX = X(shift : ext - shift, shift : ext - shift);

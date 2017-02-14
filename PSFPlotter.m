@@ -9,15 +9,16 @@ classdef PSFPlotter
             checkPSF(AberrationSwissArmyKnife);
 
             fig = figure;
-            axis = AberrationSwissArmyKnife.psfAxis;
-            [U,V] = meshgrid(axis, axis');
+            axis square;
+            pAxis = AberrationSwissArmyKnife.psfAxis;
+            [U,V] = meshgrid(pAxis, pAxis');
 
             pt = lower(plotType);
             switch pt
                 case 'mesh'
-                    mesh(U,V,AberrationSwissArmyKnife.psf);
+                    mesh(U, V, AberrationSwissArmyKnife.psf);
                 case 'surf'
-                    surf(U,V,AberrationSwissArmyKnife.psf, 'EdgeColor', 'none');
+                    surf(U, V, AberrationSwissArmyKnife.psf, 'EdgeColor', 'none');
                     shading interp;
             end
             xlim([-10, 10]);
@@ -39,7 +40,7 @@ classdef PSFPlotter
             plot(AberrationSwissArmyKnife.psfAxis, AberrationSwissArmyKnife.psfSliceX,'.-');
             xlabel('\mum');
             ylabel('Relative Intensity');
-            xlim([-2.5 2.5]);
+            xlim([-10 10]);
             grid on
         end
 
@@ -51,8 +52,7 @@ classdef PSFPlotter
             plot(AberrationSwissArmyKnife.psfAxis, AberrationSwissArmyKnife.psfSliceY, '.-');
             xlabel('\mum');
             ylabel('Relative Intensity');
-            p = AberrationSwissArmyKnife.padding;
-            xlim([-p p]);
+            xlim([-10 10]);
             grid on
         end
 
@@ -65,8 +65,7 @@ classdef PSFPlotter
             plot(AberrationSwissArmyKnife.psfAxis, AberrationSwissArmyKnife.psfSlice, '.-');
             xlabel('\mum');
             ylabel('Relative Intensity');
-            p = AberrationSwissArmyKnife.padding;
-            xlim([-p p]);
+            xlim([-10 10]);
             grid on
             ax = gca;
         end
