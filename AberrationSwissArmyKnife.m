@@ -1,7 +1,7 @@
 classdef AberrationSwissArmyKnife < handle
     %AberrationSwissArmyKnife computes wavefronts, point spread functions,
     %and MTF of pupils, both perfect and aberrated.
-    % version 0.6.0
+    % version 0.7.0
     %
     % a note on FFT units,
     % when a FFT is computed, the pupil and PSF plane are linked by the
@@ -85,8 +85,9 @@ classdef AberrationSwissArmyKnife < handle
             pupilPlaneWidth = obj.padding * xpd;
             obj.wSample = pupilPlaneWidth / obj.samples;
             
-            obj.wAxis = linspace(-obj.padding, obj.padding, obj.samples) ...
-                - (obj.padding / obj.samples); % unshift
+            obj.wAxis = (-1:1/(obj.samples/2):1-1/obj.samples)*obj.padding;
+%             obj.wAxis = linspace(-obj.padding, obj.padding, obj.samples) ...
+%                 - (obj.padding / obj.samples); % unshift
             % this leaves a positional error on the order of picometers
             % (1e-12) for a pupil of some mm (1e-3) in size.
             % an alternative would be:
@@ -98,9 +99,11 @@ classdef AberrationSwissArmyKnife < handle
             [xpX, xpY] = meshgrid(obj.wAxis);
             xpRho = sqrt(xpX.^ 2 + xpY.^ 2);
             xpPhi = atan2(xpY, xpX);
+            % Y, X is not a bug -- this is the convention of the 
+            % zernike polynomials
             
             % prefill the pupil with ones.
-            obj.w = zeros(obj.samples);
+            obj.w = ones(obj.samples);
 
             % pull the terms, coefficients, and function library for the notation
             if strcmpi(obj.pupil.notation, 'z')
@@ -111,6 +114,7 @@ classdef AberrationSwissArmyKnife < handle
 
             % compute the phase of each sample of the pupil
             netPhase = zeros(size(obj.w));
+            pupilWasChanged = false;
             for i = 1 : length(obj.pupil.terms)
                 if (obj.pupil.coefficients(i) == 0)
                     continue % short circuit 0 terms for better performance
@@ -118,11 +122,16 @@ classdef AberrationSwissArmyKnife < handle
                 Wexp = aberrationFn(obj.pupil.terms(i));
                 contrib = Wexp(obj.pupil.coefficients(i), xpRho, xpPhi);
                 netPhase = netPhase + contrib;
+                pupilWasChanged = true;
             end
 
             % compute the amplitude of the pupil from its phase.
             % we are interested in the amplitude (abs) not phase (atan2)
-            obj.w = obj.w + abs((exp(1i .* 2 .* pi ./ obj.lambda) .* netPhase));
+            if pupilWasChanged
+                obj.w = obj.w + abs((exp(1i .* 2 .* pi ./ obj.lambda) .* netPhase)) .* rot90(sign(xpPhi)) - 1;
+            else % need to handle offset from prefilling with ones
+                obj.w = obj.w + abs((exp(1i .* 2 .* pi ./ obj.lambda) .* netPhase));
+            end
             
             % annihilate outside the lens' pupil.
             obj.w(xpRho > 1) = 0;
