@@ -5,10 +5,9 @@ classdef WPlotter
 
             checkW(AberrationSwissArmyKnife);
             plot(AberrationSwissArmyKnife.wAxis, AberrationSwissArmyKnife.wSliceX);
-            xlabel('Pupil Radii');
-            ylabel('Pupil Amplitude');
+            xlabel('Normalized Pupil Radius');
+            ylabel('OPD [\lambda]');
             xlim([-1, 1]);
-            title('Slices');
             grid on
         end
 
@@ -18,9 +17,8 @@ classdef WPlotter
             checkW(AberrationSwissArmyKnife);
             plot(AberrationSwissArmyKnife.wAxis, AberrationSwissArmyKnife.wSliceY);
             xlabel('Normalized Pupil Radius');
-            ylabel('Pupil Amplitude');
+            ylabel('OPD [\lambda]');
             xlim([-1, 1]);
-            title('Slices');
             grid on
         end
 
@@ -33,7 +31,7 @@ classdef WPlotter
             plot(AberrationSwissArmyKnife.wAxis, AberrationSwissArmyKnife.wSliceX, '.-');
             plot(AberrationSwissArmyKnife.wAxis, AberrationSwissArmyKnife.wSliceY, '.-');
             xlabel('Normalized Pupil Radius');
-            ylabel('Relative Intensity');
+            ylabel('OPD [\lambda]');
             xlim([-1 1]);
             grid on
             ax = gca;
@@ -57,7 +55,7 @@ classdef WPlotter
             ext = size(X, 1);
             plotX = X(shift : ext - shift, shift : ext - shift);
             plotY = Y(shift : ext - shift, shift : ext - shift);
-            plotW = AberrationSwissArmyKnife.w(shift : ext - shift, shift : ext - shift);
+            plotW = AberrationSwissArmyKnife.wPhase(shift : ext - shift, shift : ext - shift);
             switch lower(plotType)
                 case 'mesh'
                     mesh(plotX, plotY, plotW);
@@ -70,7 +68,7 @@ classdef WPlotter
             xlabel('Normalized Pupil X');
             ylabel('Normalized Pupil Y');
             c = colorbar();
-            c.Label.String = 'Pupil Phase (modulo 2\pi)';
+            c.Label.String = 'OPD [\lambda]';
             ax = gca;
         end
     end
