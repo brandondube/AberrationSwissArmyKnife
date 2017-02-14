@@ -4,9 +4,10 @@ classdef WPlotter
             %plots central horizontal slice of wavefront W
 
             checkW(AberrationSwissArmyKnife);
-            plot(AberrationSwissArmyKnife.wAxis, AberrationSwissArmyKnife.wSliceX)
+            plot(AberrationSwissArmyKnife.wAxis, AberrationSwissArmyKnife.wSliceX);
             xlabel('Pupil Radii');
             ylabel('Pupil Amplitude');
+            xlim([-1, 1]);
             title('Slices');
             grid on
         end
@@ -15,14 +16,30 @@ classdef WPlotter
             %plots central horizontal slice of wavefront W
 
             checkW(AberrationSwissArmyKnife);
-            plot(AberrationSwissArmyKnife.wAxis, AberrationSwissArmyKnife.wSliceY)
+            plot(AberrationSwissArmyKnife.wAxis, AberrationSwissArmyKnife.wSliceY);
             xlabel('Normalized Pupil Radius');
-            ylabel('Pupil Amplitude'); 
+            ylabel('Pupil Amplitude');
+            xlim([-1, 1]);
             title('Slices');
             grid on
         end
+
+        function [fig, ax] = plotSliceXY(AberrationSwissArmyKnife)
+            %plots slice through both the X and Y axis of the pupil
+            checkW(AberrationSwissArmyKnife);
+
+            fig = figure;
+            hold on
+            plot(AberrationSwissArmyKnife.wAxis, AberrationSwissArmyKnife.wSliceX, '.-');
+            plot(AberrationSwissArmyKnife.wAxis, AberrationSwissArmyKnife.wSliceY, '.-');
+            xlabel('Normalized Pupil Radius');
+            ylabel('Relative Intensity');
+            xlim([-1 1]);
+            grid on
+            ax = gca;
+        end
         
-        function [] = plot3D(AberrationSwissArmyKnife, plotType)
+        function [fig, ax] = plot3D(AberrationSwissArmyKnife, plotType)
             %plot 3D rendition of W.
 
             if nargin < 2
@@ -30,14 +47,15 @@ classdef WPlotter
             end
             checkW(AberrationSwissArmyKnife);
             
+            fig = figure;
             axis = AberrationSwissArmyKnife.wAxis;
             [X, Y] = meshgrid(axis, axis');
-            paddingPixels = (AberrationSwissArmyKnife.padding - 1) * length(axis);
-            shift = floor(paddingPixels / 2);
+            paddingPixels = length(axis) / (AberrationSwissArmyKnife.padding - 1);
+            shift = ceil(paddingPixels / 2);
             ext = size(X, 1);
-            plotX = X(shift + 1: ext - shift, shift + 1 : ext - shift);
-            plotY = Y(shift + 1: ext - shift, shift + 1 : ext - shift);
-            plotW = AberrationSwissArmyKnife.w(shift + 1: ext - shift, shift + 1: ext - shift);
+            plotX = X(shift : ext - shift, shift : ext - shift);
+            plotY = Y(shift : ext - shift, shift : ext - shift);
+            plotW = AberrationSwissArmyKnife.w(shift : ext - shift, shift : ext - shift);
             switch lower(plotType)
                 case 'mesh'
                     mesh(plotX, plotY, plotW);
@@ -51,6 +69,7 @@ classdef WPlotter
             ylabel('Normalized Pupil Y');
             c = colorbar();
             c.Label.String = 'Pupil Phase (modulo 2\pi)';
+            ax = gca;
         end
     end
 end
