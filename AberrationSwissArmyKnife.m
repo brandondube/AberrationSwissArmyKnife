@@ -39,7 +39,8 @@ classdef AberrationSwissArmyKnife < handle
 
         % outputs
         origin    % origin of wavefront and image
-        w         % 2D aberrated wavefront
+        w         % 2D aberrated wavefront (complex)
+        wPhase    % phase map of w, for plotting
         wSliceX   % 1D slice of pupil amplitude along X
         wSliceY   % 1D slice of pupil amplitude along Y
         wSample   % "pixel" size in the pupil plane
@@ -85,15 +86,7 @@ classdef AberrationSwissArmyKnife < handle
             pupilPlaneWidth = obj.padding * xpd;
             obj.wSample = pupilPlaneWidth / obj.samples;
             
-            obj.wAxis = (-1:1/(obj.samples/2):1-1/obj.samples)*obj.padding;
-%             obj.wAxis = linspace(-obj.padding, obj.padding, obj.samples) ...
-%                 - (obj.padding / obj.samples); % unshift
-            % this leaves a positional error on the order of picometers
-            % (1e-12) for a pupil of some mm (1e-3) in size.
-            % an alternative would be:
-            % obj.wAxis = (-1:1/(obj.samples/2):1-1/obj.samples)*obj.padding
-            % which is a less readable syntax.  The billionths of a percent
-            % error are accepted in this case.
+            obj.wAxis = (-1 : 1 / (obj.samples / 2) : 1 - 1 / obj.samples) * obj.padding;
             
             % extend this slice to 2D
             [xpX, xpY] = meshgrid(obj.wAxis);
@@ -124,23 +117,23 @@ classdef AberrationSwissArmyKnife < handle
                 netPhase = netPhase + contrib;
                 pupilWasChanged = true;
             end
-
+            obj.wPhase = netPhase;
             % compute the amplitude of the pupil from its phase.
             % we are interested in the amplitude (abs) not phase (atan2)
-            if pupilWasChanged
-                obj.w = obj.w + abs((exp(1i .* 2 .* pi ./ obj.lambda) .* netPhase)) .* rot90(sign(xpPhi)) - 1;
-            else % need to handle offset from prefilling with ones
-                obj.w = obj.w + abs((exp(1i .* 2 .* pi ./ obj.lambda) .* netPhase));
+            if pupilWasChanged % need to handle offset from prefilling with ones
+                obj.w = obj.w + exp(1i .* 2 .* pi ./ obj.lambda .* netPhase) - 1;
             end
-            
             % annihilate outside the lens' pupil.
             obj.w(xpRho > 1) = 0;
+            obj.wPhase(xpRho > 1) = NaN;
+            
             % obscure as needed
             obj.w(xpRho < obj.pupil.centralObscuration) = 0;
+            obj.wPhase(xpRho < obj.pupil.centralObscuration) = NaN;
             
             % take X and Y slices
-            obj.wSliceX = obj.w(obj.origin, :);
-            obj.wSliceY = obj.w(:, obj.origin)';
+            obj.wSliceX = obj.wPhase(obj.origin, :);
+            obj.wSliceY = obj.wPhase(:, obj.origin)';
         end
 
         function w2psf(obj)
