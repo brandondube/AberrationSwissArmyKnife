@@ -1,13 +1,13 @@
 classdef AberrationSwissArmyKnife < handle
     %AberrationSwissArmyKnife computes wavefronts, point spread functions,
     %and MTF of pupils, both perfect and aberrated.
-    % version 0.7.0
+    % version 0.9.0
     %
     % a note on FFT units,
     % when a FFT is computed, the pupil and PSF plane are linked by the
     % equation:
     % N*dp = (lambda*efl)/(di)
-    % where 
+    % where
     %   N is the number of FFT samples
     %   dp is the sample spacing in the pupil plane
     %   lambda is the wavelength of light
@@ -61,9 +61,9 @@ classdef AberrationSwissArmyKnife < handle
         function obj = AberrationSwissArmyKnife(varargin)          
             p = inputParser;
             p.KeepUnmatched = false;
-            p.addParameter('lambda',  0.5876,  @isnumeric);  % um
-            p.addParameter('efl',     1,    @isnumeric);  % mm
-            p.addParameter('fno',     2,    @isnumeric);  % unitless
+            p.addParameter('lambda',  1,    @isnumeric);  % um
+            p.addParameter('efl',     50,   @isnumeric);  % mm
+            p.addParameter('fno',     4,    @isnumeric);  % unitless
             p.addParameter('pupil', PupilPrescription()); % aberrations are part of the pupil
             p.addParameter('padding', 8,    @isnumeric);  % necessary for good FFT result, xPupils
             p.addParameter('samples', 1024, @isnumeric);  % image width
@@ -84,9 +84,9 @@ classdef AberrationSwissArmyKnife < handle
             % pupil
             xpd = obj.efl / obj.fno * 1000; % *1000 converts mm to um
             pupilPlaneWidth = obj.padding * xpd;
-            obj.wSample = pupilPlaneWidth / obj.samples;
+            obj.wSample = pupilPlaneWidth / obj.samples * 2;
             
-            obj.wAxis = (-1 : 1 / (obj.samples / 2) : 1 - 1 / obj.samples) * obj.padding;
+            obj.wAxis =(-1 : 2 / obj.samples : 1 - 2 / obj.samples) * (2 * obj.padding);
             
             % extend this slice to 2D
             [xpX, xpY] = meshgrid(obj.wAxis);
@@ -160,8 +160,11 @@ classdef AberrationSwissArmyKnife < handle
             obj.mtfTan = obj.mtf(:, 1)';
             obj.mtfSag = obj.mtf(1, :);
             
-            obj.mtfAxis = (0 : obj.samples - 1) * obj.padding * 2 ...
-                / obj.samples * 1e3 / (obj.lambda * obj.samples); % factor of 1e3 converts um to mm
+            % everything to the right of 1/
+            % uses the sampling frequency in the image plane to compute the
+            % unit in "Hz".  It is inverted to produce lp/mm.
+            obj.mtfAxis = 1 / (obj.psfSample / 1e3) * (0 : (obj.samples / 2)) / obj.samples; %1e3 = um to mm
+            
             obj.mtfAxis = obj.mtfAxis(1 : l);
         end
     end
