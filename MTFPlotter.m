@@ -73,7 +73,9 @@ classdef MTFPlotter
             xlabel('lp/mm');
             ylabel('MTF');
             ylim([0 1]);
+            xlim([0, 200]);
             grid on
+            legend('Tangential', 'Sagittal', 'Location', 'southwest', 'Orientation', 'vertical');
             ax = gca;
         end
     end

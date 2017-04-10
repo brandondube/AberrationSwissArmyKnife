@@ -21,8 +21,8 @@ classdef PSFPlotter
                     surf(U, V, AberrationSwissArmyKnife.psf, 'EdgeColor', 'none');
                     shading interp;
             end
-            xlim([-10, 10]);
-            ylim([-10, 10]);
+            xlim([-15, 15]);
+            ylim([-15, 15]);
             view(0, 90);
             xlabel('\mum');
             ylabel('\mum');

@@ -1,7 +1,7 @@
 classdef AberrationSwissArmyKnife < handle
     %AberrationSwissArmyKnife computes wavefronts, point spread functions,
     %and MTF of pupils, both perfect and aberrated.
-    % version 0.9.0
+    % version 0.9.1
     %
     % a note on FFT units,
     % when a FFT is computed, the pupil and PSF plane are linked by the
@@ -61,9 +61,9 @@ classdef AberrationSwissArmyKnife < handle
         function obj = AberrationSwissArmyKnife(varargin)          
             p = inputParser;
             p.KeepUnmatched = false;
-            p.addParameter('lambda',  1,    @isnumeric);  % um
-            p.addParameter('efl',     50,   @isnumeric);  % mm
-            p.addParameter('fno',     4,    @isnumeric);  % unitless
+            p.addParameter('lambda',  0.5,  @isnumeric);  % um
+            p.addParameter('efl',     1,    @isnumeric);  % mm
+            p.addParameter('fno',     2,    @isnumeric);  % unitless
             p.addParameter('pupil', PupilPrescription()); % aberrations are part of the pupil
             p.addParameter('padding', 8,    @isnumeric);  % necessary for good FFT result, xPupils
             p.addParameter('samples', 1024, @isnumeric);  % image width
@@ -83,8 +83,8 @@ classdef AberrationSwissArmyKnife < handle
             % build a a slice through the coordinates of the normalized
             % pupil
             xpd = obj.efl / obj.fno * 1000; % *1000 converts mm to um
-            pupilPlaneWidth = obj.padding * xpd;
-            obj.wSample = pupilPlaneWidth / obj.samples * 2;
+            pupilPlaneWidth = obj.padding * xpd * 2;
+            obj.wSample = pupilPlaneWidth / obj.samples;
             
             obj.wAxis =(-1 : 2 / obj.samples : 1 - 2 / obj.samples) * (2 * obj.padding);
             
@@ -118,8 +118,8 @@ classdef AberrationSwissArmyKnife < handle
                 pupilWasChanged = true;
             end
             obj.wPhase = netPhase;
-            % compute the amplitude of the pupil from its phase.
-            % we are interested in the amplitude (abs) not phase (atan2)
+            
+            % compute the pupil transfer function from the phase
             if pupilWasChanged % need to handle offset from prefilling with ones
                 obj.w = obj.w + exp(1i .* 2 .* pi ./ obj.lambda .* netPhase) - 1;
             end
